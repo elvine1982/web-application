@@ -1,0 +1,73 @@
+pipeline {
+    agent any
+    
+    environment {
+        DOCKER_IMAGE = 'yourimage:latest'
+    }
+    
+    tools {
+        maven 'Maven'
+        jdk 'JDK'
+        sonarqubeScanner 'SonarQube'
+        dockerTool 'Docker'
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                // Checkout code from GitHub repository
+                git 'https://github.com/yourusername/yourrepository.git'
+            }
+        }
+        
+        stage('Build') {
+            steps {
+                // Use Maven to build the project
+                sh 'mvn clean package'
+            }
+        }
+        
+        stage('SonarQube Analysis') {
+            steps {
+                // Run SonarQube analysis
+                withSonarQubeEnv('SonarQube') {
+                    sh 'mvn sonar:sonar'
+                }
+            }
+        }
+        
+        stage('Containerize') {
+            steps {
+                // Build Docker image
+                sh 'docker build -t $DOCKER_IMAGE .'
+            }
+        }
+        
+        stage('Scan for Vulnerabilities') {
+            steps {
+                // Use Trivy to scan Docker image for vulnerabilities
+                sh 'docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy $DOCKER_IMAGE'
+            }
+        }
+        
+        stage('Deploy with Docker Compose') {
+            steps {
+                // Deploy with Docker Compose
+                sh 'docker-compose up -d'
+            }
+        }
+        
+        stage('Deploy to Nexus') {
+            steps {
+                // Deploy artifacts to Nexus repository
+                nexusArtifactUploader artifacts: [['target/*.jar']], nexusVersionId: 'nexus-id', protocol: 'http', nexusUrl: 'http://nexus.example.com', credentialsId: 'nexus-credentials-id'
+            }
+        }
+    }
+    
+    post {
+        always {
+            // Cleanup steps, if any
+        }
+    }
+}
