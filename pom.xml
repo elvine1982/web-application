@@ -118,6 +118,7 @@
 					<source>${jdk.version}</source>
 					<target>${jdk.version}</target>
 				</configuration>
+				     <webXml>src/main/webapp/WEB-INF/web.xml</webXml> 
 			</plugin>
 
 			<plugin>
