@@ -2,11 +2,11 @@ pipeline {
     agent any
     
     environment {
-        DOCKER_IMAGE = 'yourimage:latest'
+        DOCKER_IMAGE = 'elvine1982/countrybank'
     }
     
     tools {
-        maven 'Maven'
+        maven 'maven3.6.0'
         jdk 'JDK'
         sonarqubeScanner 'SonarQube'
         dockerTool 'Docker'
@@ -16,7 +16,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 // Checkout code from GitHub repository
-                git 'https://github.com/yourusername/yourrepository.git'
+                 git 'https://github.com/elvine1982/maven-web-application'
             }
         }
         
